@@ -1,6 +1,6 @@
 server {
     listen 80;
-    server_name gta5.blykio.com;
+    server_name gta5.blykio.com; # RÄTTAT: Ingen :// och rätt subdomän
     
     # Omdirigera all HTTP-trafik till HTTPS
     return 301 https://$host$request_uri;
@@ -8,19 +8,27 @@ server {
 
 server {
     listen 443 ssl;
-    server_name gta5.blykio.com;
+    server_name gta5.blykio.com; # RÄTTAT: Ingen :// och rätt subdomän
 
-    # SSL-certifikat - RÄTTAT: Tog bort :// så att sökvägen är giltig
+    # SSL-certifikat - RÄTTAT: Ren och giltig Linux-sökväg
     ssl_certificate /etc/letsencrypt/live/gta5.blykio.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/gta5.blykio.com/privkey.pem;
 
-    # Ändrad till din exakta mirror-mapp under Downloads
+    # Pekar mot din lokala mirror under Downloads
     root /root/Downloads/playgta5-offline/mirror;
     index index.html;
 
     # Isoleringshuvuden som krävs för WebAssembly / SharedArrayBuffer
     add_header Cross-Origin-Opener-Policy "same-origin" always;
     add_header Cross-Origin-Embedder-Policy "require-corp" always;
+
+    # OPTIMERING FÖR STORA FILER OCH WEBASSEMBLY
+    client_max_body_size 500M;          
+    proxy_buffers 16 16k;               
+    proxy_buffer_size 32k;
+    proxy_read_timeout 600s;            
+    proxy_connect_timeout 600s;
+    proxy_send_timeout 600s;
 
     # Blockera skadliga .env-skannrar
     location ~ /\.env {
@@ -41,5 +49,8 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+        
+        # Stäng av buffring på disk för tunga strömmar så det laddar snabbare
+        proxy_buffering off;
     }
 }
