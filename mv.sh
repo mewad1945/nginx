@@ -1,1 +1,2 @@
-mv /root/Downloads/GTA5Webport.zip ~/gta5/
+cd ~/gta5
+mv mirror/mirror/://playgta5.com* ./
