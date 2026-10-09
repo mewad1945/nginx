@@ -1,39 +1,39 @@
 server {
     listen 80;
-    server_name gta5.blykio.com; # RÄTTAT: Ta bort ://
+    server_name gta5.blykio.com;
     
-    # Redirect all HTTP traffic to HTTPS
+    # Omdirigera all HTTP-trafik till HTTPS
     return 301 https://$host$request_uri;
 }
 
 server {
     listen 443 ssl;
-    server_name gta5.blykio.com; # RÄTTAT: Ta bort ://
+    server_name gta5.blykio.com;
 
-    # SSL Certificates - RÄTTAT: Tog bort :// och lade till gta5. om certifikatet ligger där
+    # SSL-certifikat - RÄTTAT: Tog bort :// så att sökvägen är giltig
     ssl_certificate /etc/letsencrypt/live/gta5.blykio.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/gta5.blykio.com/privkey.pem;
 
-    # Web Root Directory
-    root /gta5/mirror/playgta5.com;
+    # Ändrad till din exakta mirror-mapp under Downloads
+    root /root/Downloads/playgta5-offline/mirror;
     index index.html;
 
-    # Cross-Origin Isolation headers required for WebAssembly / SharedArrayBuffer
+    # Isoleringshuvuden som krävs för WebAssembly / SharedArrayBuffer
     add_header Cross-Origin-Opener-Policy "same-origin" always;
     add_header Cross-Origin-Embedder-Policy "require-corp" always;
 
-    # Block malicious .env scanner bots
+    # Blockera skadliga .env-skannrar
     location ~ /\.env {
         deny all;
         return 404;
     }
 
-    # Serve static web assets directly via Nginx; fallback to Python
+    # Servera statiska filer direkt via Nginx, skicka resten till Python
     location / {
         try_files $uri $uri/ @python_backend;
     }
 
-    # Proxy fallback for dynamic/API routes to Python backend
+    # Proxy-fallback till din lokala Python-server på port 8000
     location @python_backend {
         proxy_pass http://127.0.0.1:8000;
         proxy_http_version 1.1;
