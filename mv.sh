@@ -1,2 +1,1 @@
-cd ~/gta5
-mv mirror/mirror/://playgta5.com* ./
+mv b data favicon.ico index.html robots.txt ~/gta5/
